@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import spotifyService from "./services/SpotifyService";
+import spotifyService from "./services/spotifyService";
+import { getAccessTokenFromCode } from "./services/spotifyAuth";
 import { UIController } from "./components/uiController";
 import jukeboxLogo from "/logo.png";
 
@@ -18,12 +19,35 @@ export default function App() {
     songSearch: useRef(),
     artistSearch: useRef(),
     searchBtn: useRef(),
+    wishBtn: useRef(),
   };
 
   const [searchResults, setSearchResults] = useState([]);
+  const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
+
+  const handleWish = async (track) => {
+    console.log("Gewünschter Song:", track);
+
+    const token = await spotifyService.getUserToken();
+
+    if (!token) {
+      // Benutzer wurde umgeleitet, wir können hier nichts weiter machen
+      return;
+    }
+
+    await spotifyService.postTrackToQueue(token, track.uri);
+    alert(`Du hast "${track.name}" von ${track.artists[0].name} gewünscht!`);
+  };
 
   useEffect(() => {
     const DOMInputs = UIController.inputField(refs);
+
+    const fetchToken = async () => {
+      const token = await getAccessTokenFromCode();
+      if (token) {
+        console.log("Spotify User Token:", token);
+      }
+    };
 
     const loadGenres = async () => {
       const token = await spotifyService.getToken();
@@ -33,7 +57,16 @@ export default function App() {
       genres.forEach((g) => UIController.createGenre(refs, g.name, g.id));
     };
 
+    // const loadCurrentlyPlaying = async () => {
+    //   const token = await spotifyService.getUserToken();
+    //   const track = await spotifyService.getCurrentlyPlayingTrack(token);
+    //   setCurrentlyPlaying(track);
+    // };
+
+    fetchToken();
     loadGenres();
+
+    // loadCurrentlyPlaying();
 
     // genre change event
     DOMInputs.genre.addEventListener("change", async () => {
@@ -101,7 +134,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex justify-center items-start p-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6">
+      <div className="w-full max-w-md bg-white rounded-lg shadow-lg flex flex-col space-y-4 mb-4 p-6">
         <input type="hidden" ref={refs.token} id="hidden_token" />
 
         <div className="mb-4 text-center">
@@ -110,7 +143,7 @@ export default function App() {
           </a>
         </div>
 
-        <div className="row mb-3">
+        <div className="invisible row mb-3">
           <div className="col-sm-4">
             <select ref={refs.genre} id="select_genre" className="form-select">
               <option value="">Wähle ein Genre</option>
@@ -136,6 +169,31 @@ export default function App() {
               Laden
             </button>
           </div>
+        </div>
+
+        <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6">
+          <p className="mb-8">Läuft gerade</p>
+          {currentlyPlaying ? (
+            <div className="d-flex align-items-center">
+              <img
+                src={currentlyPlaying.album.images[2].url}
+                alt={currentlyPlaying.name}
+                className="me-3"
+              />
+              <div>
+                <div className="font-bold text-lg">{currentlyPlaying.name}</div>
+                <div className=" text-gray-400">
+                  {currentlyPlaying.artists[0].name}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="text-muted">Nichts wird gerade abgespielt</p>
+          )}
+        </div>
+
+        <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6">
+          <p className="mb-8">Als nächstes (3)</p>
         </div>
 
         <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6">
@@ -195,7 +253,10 @@ export default function App() {
                       </div>
                       <div>
                         <span className="me-2">CHF 2.50</span>
-                        <button className="btn btn-dark btn-sm">
+                        <button
+                          className="btn btn-dark btn-sm"
+                          onClick={() => handleWish(track)}
+                        >
                           Wünschen ❤️
                         </button>
                       </div>
