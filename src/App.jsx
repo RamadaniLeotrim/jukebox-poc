@@ -148,15 +148,15 @@ export default function App() {
           </a>
         </div>
 
-        <div className="invisible row mb-3">
-          <div className="col-sm-4">
+        <div className="invisible row">
+          <div>
             <select ref={refs.genre} id="select_genre" className="form-select">
               <option value="">Wähle ein Genre</option>
             </select>
           </div>
 
-          <div className="col-sm-4">
-            <select
+          <div>
+            <select 
               ref={refs.playlist}
               id="select_playlist"
               className="form-select"
@@ -165,7 +165,7 @@ export default function App() {
             </select>
           </div>
 
-          <div className="col-sm-4">
+          <div>
             <button
               ref={refs.submit}
               id="btn_submit"
@@ -202,7 +202,7 @@ export default function App() {
           <div className="flex flex-col space-y-4">
             {queue &&
               queue.slice(0, 3).map((item) => (
-                <div key={item.name} className="flex  align-items-center">
+                <div key={item.name} className="flex align-items-center bg-gray-50 rounded p-3">
                   <img
                     src={item.album.images[2].url}
                     alt={item.name}
@@ -251,42 +251,32 @@ export default function App() {
             </div>
           </div>
 
-          <div className="row">
-            <div className="col-sm-6">
-              {searchResults.length === 0 && (
-                <p className="text-muted">Keine Ergebnisse</p>
-              )}
-              <div className="max-h-[400px] overflow-y-auto">
-                {searchResults.map((track) => (
-                  <div
-                    key={track.id}
-                    className="border border-gray-100 p-2 rounded-lg card mb-2"
-                  >
-                    <div className="card-body d-flex justify-content-between align-items-center">
-                      <div>
-                        <div className="font-bold text-lg">{track.name}</div>
-                        <div className=" text-gray-400">
-                          {track.artists[0].name}
-                        </div>
-                        <span className="inline-block mt-1 bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
-                          {track.album?.genres?.[0] || "Genre"}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="me-2">CHF 2.50</span>
-                        <button
-                          className="flex flex-row gap-2 items-center btn btn-dark btn-sm"
-                          onClick={() => handleWish(track)}
-                        >
-                          <Heart className="h-4 w-4 me-1" />
-                          Wünschen
-                        </button>
-                      </div>
-                    </div>
+          <div className="max-h-[400px] overflow-y-auto">
+            {searchResults.length === 0 ? (
+              <p className="text-gray-400">Keine Ergebnisse</p>
+            ) : (
+              searchResults.map((track) => (
+                <div
+                  key={track.id}
+                  className="border border-gray-200 rounded p-2 mb-2 flex justify-between items-center"
+                >
+                  <div>
+                    <div className="font-bold">{track.name}</div>
+                    <div className="text-gray-400">{track.artists[0].name}</div>
+                    <span className="inline-block mt-1 bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
+                      CHF 2.50
+                    </span>
                   </div>
-                ))}
-              </div>
-            </div>
+                  <button
+                    onClick={() => handleWish(track)}
+                    className="btn btn-dark flex gap-1 items-center px-2 py-1 rounded"
+                  >
+                    <Heart className="w-4 h-4" />
+                    Wünschen
+                  </button>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
