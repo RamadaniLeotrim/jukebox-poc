@@ -59,11 +59,22 @@ export const getAccessTokenFromCode = async () => {
     code_verifier: codeVerifier,
   });
 
+  console.log("Token Exchange Debug:");
+  console.log("Redirect URI:", redirectUri);
+  console.log("Code Verifier:", codeVerifier);
+  console.log("Code:", code);
+
   const response = await fetch("https://accounts.spotify.com/api/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: body.toString(),
   });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.error("Token Exchange Error:", errorData);
+    return null;
+  }
 
   const data = await response.json();
   if (data.access_token) localStorage.setItem("spotify_access_token", data.access_token);
