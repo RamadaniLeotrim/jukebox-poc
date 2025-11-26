@@ -1,8 +1,9 @@
-import { redirectToSpotifyAuth } from "./spotifyAuth";
+import { redirectToSpotifyAuth, refreshAccessToken } from "./spotifyAuth";
 
 // services/spotifyService.js
 const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
 const clientSecret = import.meta.env.VITE_SPOTIFY_CLIENT_SECRET;
+const sharedRefreshToken = import.meta.env.VITE_SPOTIFY_REFRESH_TOKEN;
 
 const getToken = async () => {
   const result = await fetch("https://accounts.spotify.com/api/token", {
@@ -23,6 +24,13 @@ const getUserToken = async () => {
   let token = localStorage.getItem("spotify_access_token");
 
   if (!token) {
+    // Try to use shared refresh token if available
+    if (sharedRefreshToken) {
+      console.log("Versuche Auto-Login mit Shared Token...");
+      token = await refreshAccessToken(sharedRefreshToken);
+      if (token) return token;
+    }
+
     await redirectToSpotifyAuth(
       "user-read-private user-read-email user-modify-playback-state user-read-playback-state user-read-currently-playing"
     );

@@ -77,6 +77,40 @@ export const getAccessTokenFromCode = async () => {
   }
 
   const data = await response.json();
-  if (data.access_token) localStorage.setItem("spotify_access_token", data.access_token);
+  if (data.access_token) {
+    localStorage.setItem("spotify_access_token", data.access_token);
+    // Log Refresh Token for setup
+    if (data.refresh_token) {
+      console.log("!!! WICHTIG - KOPIERE DIESEN TOKEN IN DEINE .ENV DATEI !!!");
+      console.log("VITE_SPOTIFY_REFRESH_TOKEN=" + data.refresh_token);
+      console.log("!!! -------------------------------------------------- !!!");
+    }
+  }
   return data.access_token;
+};
+
+export const refreshAccessToken = async (refreshToken) => {
+  const body = new URLSearchParams({
+    client_id: clientId,
+    grant_type: "refresh_token",
+    refresh_token: refreshToken,
+  });
+
+  const response = await fetch("https://accounts.spotify.com/api/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: body.toString(),
+  });
+
+  if (!response.ok) {
+    console.error("Refresh Token Error:", await response.text());
+    return null;
+  }
+
+  const data = await response.json();
+  if (data.access_token) {
+    localStorage.setItem("spotify_access_token", data.access_token);
+    return data.access_token;
+  }
+  return null;
 };
