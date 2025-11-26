@@ -5,6 +5,7 @@ import { UIController } from "./components/uiController";
 import jukeboxLogo from "/logo.png";
 import SectionHeader from "./components/SectionHeader";
 import { Play, Clock, Heart } from "lucide-react";
+import QRCode from "react-qr-code";
 
 // ---------------------------------------------------------------------
 // APP Controller mapped to React component
@@ -138,7 +139,22 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen flex justify-center items-start p-4">
+    <div className="min-h-screen flex justify-center items-start p-4 relative">
+      {/* QR Code for Desktop */}
+      <div className="hidden md:flex fixed left-10 top-1/2 -translate-y-1/2 flex-col items-center bg-white p-6 rounded-xl shadow-2xl border border-gray-100">
+        <h3 className="text-lg font-bold mb-4 text-gray-800">Scan to Join</h3>
+        <div className="p-2 bg-white rounded-lg">
+          <QRCode
+            value={import.meta.env.VITE_SPOTIFY_REDIRECT_URI}
+            size={180}
+            level="H"
+          />
+        </div>
+        <p className="mt-4 text-sm text-gray-500 text-center max-w-[200px]">
+          Scan with your phone to control the jukebox
+        </p>
+      </div>
+
       <div className="w-full max-w-md bg-white rounded-lg shadow-lg flex flex-col space-y-4 mb-4 p-6">
         <input type="hidden" ref={refs.token} id="hidden_token" />
 
@@ -156,7 +172,7 @@ export default function App() {
           </div>
 
           <div>
-            <select 
+            <select
               ref={refs.playlist}
               id="select_playlist"
               className="form-select"
