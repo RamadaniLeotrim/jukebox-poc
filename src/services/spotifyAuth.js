@@ -77,6 +77,14 @@ export const getAccessTokenFromCode = async () => {
   }
 
   const data = await response.json();
-  if (data.access_token) localStorage.setItem("spotify_access_token", data.access_token);
+  if (data.access_token) {
+    localStorage.setItem("spotify_access_token", data.access_token);
+    // Log Refresh Token for Vercel setup
+    if (data.refresh_token) {
+      console.log("!!! WICHTIG - KOPIERE DIESEN TOKEN FÜR VERCEL !!!");
+      console.log("SPOTIFY_REFRESH_TOKEN=" + data.refresh_token);
+      console.log("!!! ------------------------------------------- !!!");
+    }
+  }
   return data.access_token;
 };

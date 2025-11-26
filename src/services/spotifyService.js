@@ -23,6 +23,22 @@ const getUserToken = async () => {
   let token = localStorage.getItem("spotify_access_token");
 
   if (!token) {
+    try {
+      // Try to get token from our Vercel backend
+      const response = await fetch('/api/token');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.access_token) {
+          console.log("Auto-Login via Backend erfolgreich!");
+          localStorage.setItem("spotify_access_token", data.access_token);
+          return data.access_token;
+        }
+      }
+    } catch (e) {
+      console.error("Backend Auto-Login failed", e);
+    }
+
+    // Fallback to manual login if backend fails
     await redirectToSpotifyAuth(
       "user-read-private user-read-email user-modify-playback-state user-read-playback-state user-read-currently-playing"
     );
