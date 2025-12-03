@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
-  base: '/jukebox-poc/',
+  base: process.env.VITE_BASE_URL || '/',
   server: {
     host: true,
     allowedHosts: true
